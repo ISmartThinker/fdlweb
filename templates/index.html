@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Smart Temp Files - Secure temporary file sharing. Upload files and get shareable links that auto-expire in 10 minutes.">
+    <meta name="keywords" content="Temporary Files, File Sharing, Upload, Secure, Auto-Expire">
+    <meta name="author" content="Smart Temp Files">
+    <title>Smart Temp Files - Temporary File Sharing</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta property="og:title" content="Smart Temp Files - Temporary File Sharing">
+    <meta property="og:description" content="Secure temporary file sharing with auto-expiring links">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <style>
+        :root {
+            --primary-gold: #FFD700;
+            --primary-gold-dark: #FFB300;
+            --accent-cyan: #00FFF5;
+            --accent-cyan-dark: #00CCC4;
+            --accent-purple: #9D4EDD;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B8B8B8;
+            --text-muted: #6B7280;
+            --bg-dark: #0A0A0F;
+            --bg-darker: #050508;
+            --bg-card: #16161F;
+            --bg-card-hover: #1E1E2D;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glow-gold: 0 0 30px rgba(255, 215, 0, 0.3);
+            --glow-cyan: 0 0 30px rgba(0, 255, 245, 0.3);
+            --glow-purple: 0 0 30px rgba(157, 78, 221, 0.3);
+            --font-display: 'Outfit', 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Space Grotesk', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 20% 10%, rgba(157, 78, 221, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 90%, rgba(0, 255, 245, 0.1) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(255, 215, 0, 0.05) 0px, transparent 50%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .animated-bg span {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-purple));
+            animation: float 15s infinite ease-in-out;
+            opacity: 0.2;
+            filter: blur(60px);
+        }
+
+        .animated-bg span:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .animated-bg span:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
+        .animated-bg span:nth-child(3) {
+            width: 350px;
+            height: 350px;
+            bottom: 10%;
+            left: 50%;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-30px, 30px) scale(0.9); }
+        }
+
+        .hero {
+            position: relative;
+            padding: 4rem 1rem 3rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 0.8s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-card-hover));
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--glow-cyan);
+            transition: all 0.3s ease;
+        }
+
+        .hero-badge:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0, 255, 245, 0.4);
+        }
+
+        .hero-badge i {
+            font-size: 1.2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-gold) 0%, var(--accent-cyan) 50%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            text-shadow: 0 0 80px rgba(255, 215, 0, 0.5);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            font-weight: 500;
+            line-height: 1.7;
+            padding: 0 1rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            padding: 0 0.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-card-hover));
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            min-width: 100px;
+            flex: 1;
+            max-width: 160px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-gold);
+            box-shadow: var(--glow-gold);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-gold), var(--accent-cyan));
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--glow-gold);
+        }
+
+        .stat-icon i {
+            font-size: 1.2rem;
+            color: var(--bg-dark);
+        }
+
+        .stat-number {
+            display: block;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-gold), var(--accent-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: clamp(0.65rem, 1.5vw, 0.8rem);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .main-content {
+            padding: 3rem 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: slideUp 0.8s ease-out 0.2s forwards;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-card-hover));
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-gold), var(--accent-cyan), var(--accent-purple));
+        }
+
+        .upload-section h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-gold), var(--accent-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .upload-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .dropzone {
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+            margin-bottom: 1.5rem;
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 255, 245, 0.05);
+            box-shadow: 0 0 30px rgba(0, 255, 245, 0.1);
+        }
+
+        .dropzone-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            border-radius: 20px;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            box-shadow: 0 10px 40px rgba(157, 78, 221, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .dropzone:hover .dropzone-icon {
+            transform: scale(1.1);
+            box-shadow: 0 15px 50px rgba(157, 78, 221, 0.5);
+        }
+
+        .dropzone-icon i {
+            color: var(--text-primary);
+        }
+
+        .dropzone-text {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .dropzone-hint {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .dropzone-hint span {
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-info {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-info.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-gold), var(--accent-cyan));
+            border-radius: 12px;
+            font-size: 1.3rem;
+        }
+
+        .file-icon i {
+            color: var(--bg-dark);
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            word-break: break-all;
+        }
+
+        .file-size {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .file-remove {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #FCA5A5;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-remove:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: scale(1.1);
+        }
+
+        .btn-premium {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary-gold), var(--primary-gold-dark));
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: var(--glow-gold);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            width: 100%;
+        }
+
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-premium:hover::before {
+            left: 100%;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 50px rgba(255, 215, 0, 0.5);
+        }
+
+        .btn-premium:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-premium:disabled:hover {
+            transform: none;
+            box-shadow: var(--glow-gold);
+        }
+
+        .btn-premium:disabled::before {
+            display: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-cyan-dark));
+            box-shadow: var(--glow-cyan);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 15px 50px rgba(0, 255, 245, 0.5);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            display: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-container.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .progress-bar-custom {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Result Section */
+        .result-section {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-card {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #22C55E, #16A34A);
+            border-radius: 12px;
+            font-size: 1.3rem;
+        }
+
+        .result-icon i {
+            color: white;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #86EFAC;
+        }
+
+        .result-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .url-box {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--primary-gold);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+
+        .btn-copy {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .expiry-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .expiry-info i {
+            color: var(--primary-gold);
+            font-size: 1.2rem;
+        }
+
+        .expiry-info span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .expiry-info strong {
+            color: var(--primary-gold);
+        }
+
+        /* Message */
+        .message {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+        }
+
+        .message.show {
+            display: flex;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #FCA5A5;
+        }
+
+        .message.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            color: #86EFAC;
+        }
+
+        /* API Docs Section */
+        .api-docs-section {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-card-hover));
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .api-docs-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--primary-gold));
+        }
+
+        .api-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .api-header h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            letter-spacing: -1px;
+        }
+
+        .api-version-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.85rem;
+            background: linear-gradient(135deg, rgba(157, 78, 221, 0.3), rgba(0, 255, 245, 0.2));
+            border: 1px solid var(--accent-purple);
+            border-radius: 50px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-left: 0.5rem;
+        }
+
+        .api-subtitle {
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .api-base-url {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1.5rem;
+            background: rgba(0, 255, 245, 0.08);
+            border: 1px solid rgba(0, 255, 245, 0.3);
+            border-radius: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .api-base-url .label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .api-base-url code {
+            font-family: var(--font-mono);
+            color: var(--primary-gold);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Endpoint Cards */
+        .endpoint-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            margin-bottom: 1.25rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .endpoint-card:hover {
+            border-color: rgba(0, 255, 245, 0.4);
+            box-shadow: 0 10px 40px rgba(0, 255, 245, 0.08);
+        }
+
+        .endpoint-card.expanded {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 15px 50px rgba(0, 255, 245, 0.15);
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            flex-wrap: wrap;
+        }
+
+        .endpoint-card.expanded .endpoint-header {
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .endpoint-header:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .endpoint-toggle {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .endpoint-card.expanded .endpoint-toggle {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-color: transparent;
+            color: var(--bg-dark);
+            transform: rotate(180deg);
+        }
+
+        .method {
+            padding: 0.45rem 0.95rem;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .method.get {
+            background: linear-gradient(135deg, #22C55E, #16A34A);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .method.post {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .endpoint-path {
+            font-family: var(--font-mono);
+            color: var(--primary-gold);
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .endpoint-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+            flex: 1;
+        }
+
+        .endpoint-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .endpoint-card.expanded .endpoint-body {
+            max-height: 3000px;
+        }
+
+        .endpoint-desc {
+            padding: 1.25rem 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 500;
+            line-height: 1.7;
+        }
+
+        .endpoint-details {
+            padding: 1.5rem;
+        }
+
+        .code-block {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom: 1px solid var(--border-color);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .success-response .code-header {
+            color: #86EFAC;
+            background: rgba(34, 197, 94, 0.08);
+        }
+
+        .error-response .code-header {
+            color: #FCA5A5;
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .copy-code-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-code-btn:hover {
+            color: var(--accent-cyan);
+            background: rgba(0, 255, 245, 0.1);
+            border-color: var(--accent-cyan);
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 1.25rem;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Features Section */
+        .features-section {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-card-hover));
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .features-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1), transparent);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .features-section h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-gold), var(--accent-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-6px);
+            border-color: var(--primary-gold);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.2);
+        }
+
+        .feature-icon {
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            border-radius: 14px;
+            font-size: 1.5rem;
+            margin: 0 auto 1.25rem;
+            box-shadow: 0 8px 20px rgba(157, 78, 221, 0.3);
+        }
+
+        .feature-icon i {
+            color: var(--text-primary);
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-darker) 100%);
+            border-top: 1px solid var(--border-color);
+            padding: 4rem 1rem 2rem;
+            text-align: center;
+            opacity: 0;
+            animation: slideUp 0.8s ease-out 0.4s forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-purple), var(--primary-gold), transparent);
+        }
+
+        footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-brand {
+            margin-bottom: 2rem;
+        }
+
+        .footer-logo {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-gold), var(--accent-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .footer-tagline {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .footer-social {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-social a {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-decoration: none;
+        }
+
+        .footer-social a:hover {
+            transform: translateY(-5px);
+            border-color: transparent;
+            color: var(--bg-dark);
+        }
+
+        .footer-social a:nth-child(1):hover {
+            background: linear-gradient(135deg, #333, #6e5494);
+            box-shadow: 0 10px 30px rgba(110, 84, 148, 0.4);
+        }
+
+        .footer-social a:nth-child(2):hover {
+            background: linear-gradient(135deg, #1877F2, #3b5998);
+            box-shadow: 0 10px 30px rgba(24, 119, 242, 0.4);
+        }
+
+        .footer-social a:nth-child(3):hover {
+            background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            box-shadow: 0 10px 30px rgba(225, 48, 108, 0.4);
+        }
+
+        .footer-social a:nth-child(4):hover {
+            background: linear-gradient(135deg, #1DA1F2, #14171A);
+            box-shadow: 0 10px 30px rgba(29, 161, 242, 0.4);
+        }
+
+        .footer-social a:nth-child(5):hover {
+            background: linear-gradient(135deg, #FF0000, #CC0000);
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
+        }
+
+        .footer-social a:nth-child(6):hover {
+            background: linear-gradient(135deg, #0088cc, #229ED9);
+            box-shadow: 0 10px 30px rgba(0, 136, 204, 0.4);
+        }
+
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .footer-text strong {
+            color: var(--primary-gold);
+            font-weight: 700;
+        }
+
+        .footer-text a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .footer-text a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            transition: width 0.3s ease;
+        }
+
+        .footer-text a:hover {
+            color: var(--primary-gold);
+        }
+
+        .footer-text a:hover::after {
+            width: 100%;
+        }
+
+        .footer-divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            margin: 2rem 0;
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .copyright a {
+            color: var(--accent-purple);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .copyright a:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-stats {
+                flex-wrap: wrap;
+            }
+            
+            .stat-item {
+                min-width: 80px;
+            }
+            
+            .url-box {
+                flex-direction: column;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <section class="hero">
+        <div class="hero-badge">
+            <i class="fas fa-cloud-upload-alt" style="color: var(--accent-cyan);"></i>
+            <span>Fast & Secure File Sharing</span>
+        </div>
+        <h1>Smart Temp Files</h1>
+        <p class="hero-subtitle">
+            Upload files and get instant shareable links. Files auto-expire in 10 minutes for your security and privacy.
+        </p>
+        <div class="hero-stats">
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <span class="stat-number">20MB</span>
+                <span class="stat-label">Max Size</span>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span class="stat-number">10min</span>
+                <span class="stat-label">Auto-Expire</span>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <span class="stat-number">100%</span>
+                <span class="stat-label">Private</span>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-content">
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <h2><i class="fas fa-upload"></i> Upload File</h2>
+            <p class="upload-subtitle">Drag and drop or click to select a file (max 20MB)</p>
+            
+            <div class="dropzone" id="dropzone">
+                <div class="dropzone-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <p class="dropzone-text">Drop your file here</p>
+                <p class="dropzone-hint">or <span>click to browse</span></p>
+            </div>
+            <input type="file" id="fileInput">
+
+            <div class="file-info" id="fileInfo">
+                <div class="file-icon">
+                    <i class="fas fa-file"></i>
+                </div>
+                <div class="file-details">
+                    <div class="file-name" id="fileName"></div>
+                    <div class="file-size" id="fileSize"></div>
+                </div>
+                <button class="file-remove" id="removeFile">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Uploading... 0%</div>
+            </div>
+
+            <button class="btn-premium" id="uploadBtn" disabled>
+                <i class="fas fa-rocket"></i>
+                <span>Upload File</span>
+            </button>
+
+            <div class="message error" id="errorMessage">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText"></span>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>
+                            <div class="result-title">Upload Successful!</div>
+                            <div class="result-subtitle">Your file is ready to share</div>
+                        </div>
+                    </div>
+                    <div class="url-box">
+                        <input type="text" class="url-input" id="fileUrl" readonly>
+                        <button class="btn-copy" id="copyBtn">
+                            <i class="fas fa-copy"></i>
+                            <span>Copy</span>
+                        </button>
+                    </div>
+                    <div class="expiry-info">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span>This link will expire in <strong>10 minutes</strong></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <h2><i class="fas fa-star"></i> Why Smart Temp Files?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Lightning Fast</h3>
+                    <p>Instant uploads with high-speed servers. Get your shareable link in seconds.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Privacy First</h3>
+                    <p>Files auto-delete after 10 minutes. No logs, no tracking, complete privacy.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Developer API</h3>
+                    <p>Simple REST API for programmatic uploads. Integrate with your applications easily.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-infinity"></i>
+                    </div>
+                    <h3>No Limits</h3>
+                    <p>Upload as many files as you want. No registration, no account needed.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Global Access</h3>
+                    <p>Share files with anyone, anywhere. Direct download links work worldwide.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Ready</h3>
+                    <p>Works perfectly on any device. Upload from your phone, tablet, or desktop.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Docs Section -->
+        <section class="api-docs-section">
+            <div class="api-header">
+                <h2>
+                    <i class="fas fa-code"></i> API Documentation
+                    <span class="api-version-badge">v1.0</span>
+                </h2>
+                <p class="api-subtitle">Simple REST API for file uploads</p>
+                <div class="api-base-url">
+                    <span class="label">Base URL</span>
+                    <code id="baseUrl"></code>
+                </div>
+            </div>
+
+            <!-- Upload Endpoint -->
+            <div class="endpoint-card" id="uploadEndpoint">
+                <div class="endpoint-header" onclick="toggleEndpoint('uploadEndpoint')">
+                    <div class="endpoint-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <span class="method post">POST</span>
+                    <span class="endpoint-path">/api/v1/upload</span>
+                    <span class="endpoint-title">— Upload a file</span>
+                </div>
+                <div class="endpoint-body">
+                    <div class="endpoint-desc">
+                        Upload a file and receive a temporary download URL. Files are automatically deleted after 10 minutes.
+                    </div>
+                    <div class="endpoint-details">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span><i class="fas fa-terminal"></i> cURL Example</span>
+                                <button class="copy-code-btn" onclick="copyCode(this)">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code>curl -X POST -F "file=@yourfile.txt" https://your-domain.com/api/v1/upload</code></pre>
+                        </div>
+                        
+                        <div class="code-block success-response">
+                            <div class="code-header">
+                                <span><i class="fas fa-check-circle"></i> Success Response (200)</span>
+                                <button class="copy-code-btn" onclick="copyCode(this)">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code>{
+    "status": "success",
+    "data": {
+        "url": "https://your-domain.com/dl/1704825600000/yourfile.txt",
+        "expires_in": 600
+    }
+}</code></pre>
+                        </div>
+
+                        <div class="code-block error-response">
+                            <div class="code-header">
+                                <span><i class="fas fa-times-circle"></i> Error Response (400/413/500)</span>
+                                <button class="copy-code-btn" onclick="copyCode(this)">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code>{
+    "status": "error",
+    "message": "No file provided" | "File too large. Max 20MB" | "Internal server error"
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Endpoint -->
+            <div class="endpoint-card" id="downloadEndpoint">
+                <div class="endpoint-header" onclick="toggleEndpoint('downloadEndpoint')">
+                    <div class="endpoint-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <span class="method get">GET</span>
+                    <span class="endpoint-path">/dl/{id}/{filename}</span>
+                    <span class="endpoint-title">— Download a file</span>
+                </div>
+                <div class="endpoint-body">
+                    <div class="endpoint-desc">
+                        Download a file using the URL provided after upload. Returns 404 if the file has expired or doesn't exist.
+                    </div>
+                    <div class="endpoint-details">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span><i class="fas fa-terminal"></i> cURL Example</span>
+                                <button class="copy-code-btn" onclick="copyCode(this)">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code>curl -O https://your-domain.com/dl/1704825600000/yourfile.txt</code></pre>
+                        </div>
+
+                        <div class="code-block error-response">
+                            <div class="code-header">
+                                <span><i class="fas fa-times-circle"></i> Error Response (404)</span>
+                                <button class="copy-code-btn" onclick="copyCode(this)">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code>{
+    "status": "error",
+    "message": "File not found or expired"
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-brand">
+                <div class="footer-logo">Smart Temp Files</div>
+                <p class="footer-tagline">Fast, Secure & Private Temporary File Sharing</p>
+            </div>
+            <div class="footer-social">
+                <a href="https://github.com/TheSmartDevs" target="_blank" title="GitHub" aria-label="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://facebook.com/AbirXDHackz" target="_blank" title="Facebook" aria-label="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://instagram.com/AbirXDHackz" target="_blank" title="Instagram" aria-label="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://twitter.com/AbirXDHackz" target="_blank" title="Twitter" aria-label="Twitter">
+                    <i class="fab fa-x-twitter"></i>
+                </a>
+                <a href="https://youtube.com/@AbirXDHackz" target="_blank" title="YouTube" aria-label="YouTube">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                <a href="https://t.me/AbirArafatChawdhury" target="_blank" title="Telegram" aria-label="Telegram">
+                    <i class="fab fa-telegram-plane"></i>
+                </a>
+            </div>
+            <p class="footer-text">
+                Built with <strong>passion</strong> and <strong>innovation</strong> by <a href="https://t.me/AbirArafatChawdhury" target="_blank">Abir Arafat Chawdhury 🇧🇩</a>
+                <br>
+                Join our <strong>developer community</strong>: <a href="https://t.me/abirxdhackz" target="_blank">@abirxdhackz</a>
+            </p>
+            <div class="footer-divider"></div>
+            <div class="copyright">
+                © 2026 Smart Temp Files API. All Rights Reserved. | Developed by <a href="https://t.me/ISmartCoder" target="_blank">@ISmartCoder</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Set base URL
+        document.getElementById('baseUrl').textContent = window.location.origin;
+
+        // Elements
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const removeFile = document.getElementById('removeFile');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const resultSection = document.getElementById('resultSection');
+        const fileUrl = document.getElementById('fileUrl');
+        const copyBtn = document.getElementById('copyBtn');
+
+        let selectedFile = null;
+
+        // Format file size
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Show error
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.add('show');
+            setTimeout(() => errorMessage.classList.remove('show'), 5000);
+        }
+
+        // Handle file selection
+        function handleFile(file) {
+            if (!file) return;
+            
+            if (file.size > 20 * 1024 * 1024) {
+                showError('File too large. Maximum size is 20MB.');
+                return;
+            }
+
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatSize(file.size);
+            fileInfo.classList.add('show');
+            uploadBtn.disabled = false;
+            resultSection.classList.remove('show');
+        }
+
+        // Dropzone events
+        dropzone.addEventListener('click', () => fileInput.click());
+        
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            handleFile(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+
+        // Remove file
+        removeFile.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            fileInfo.classList.remove('show');
+            uploadBtn.disabled = true;
+        });
+
+        // Upload file
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            uploadBtn.disabled = true;
+            progressContainer.classList.add('show');
+            errorMessage.classList.remove('show');
+            resultSection.classList.remove('show');
+
+            try {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        progressFill.style.width = percent + '%';
+                        progressText.textContent = `Uploading... ${percent}%`;
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    progressContainer.classList.remove('show');
+                    
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.status === 'success') {
+                            fileUrl.value = response.data.url;
+                            resultSection.classList.add('show');
+                            // Reset form
+                            selectedFile = null;
+                            fileInput.value = '';
+                            fileInfo.classList.remove('show');
+                        } else {
+                            showError(response.message || 'Upload failed');
+                        }
+                    } else {
+                        const response = JSON.parse(xhr.responseText);
+                        showError(response.message || 'Upload failed');
+                    }
+                    uploadBtn.disabled = false;
+                });
+
+                xhr.addEventListener('error', () => {
+                    progressContainer.classList.remove('show');
+                    showError('Network error. Please try again.');
+                    uploadBtn.disabled = false;
+                });
+
+                xhr.open('POST', '/api/v1/upload');
+                xhr.send(formData);
+            } catch (error) {
+                progressContainer.classList.remove('show');
+                showError('Upload failed. Please try again.');
+                uploadBtn.disabled = false;
+            }
+        });
+
+        // Copy URL
+        copyBtn.addEventListener('click', () => {
+            fileUrl.select();
+            document.execCommand('copy');
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+            }, 2000);
+        });
+
+        // Toggle endpoint
+        function toggleEndpoint(id) {
+            const card = document.getElementById(id);
+            card.classList.toggle('expanded');
+        }
+
+        // Copy code
+        function copyCode(btn) {
+            const code = btn.closest('.code-block').querySelector('code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-copy"></i>';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
